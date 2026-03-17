@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#030712">
+<title>Conversate AI</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#030712;--sf:#0a0f1a;--sf2:#111827;--sf3:#1a2332;
+  --bd:#1f2937;--bdl:#374151;
+  --tx:#f9fafb;--tm:#9ca3af;--td:#6b7280;
+  --bl:#3b82f6;--bld:rgba(59,130,246,.15);
+  --gn:#10b981;--gnd:rgba(16,185,129,.15);
+  --rd:#ef4444;--rdd:rgba(239,68,68,.15);
+  --am:#f59e0b;--amd:rgba(245,158,11,.12);
+  --cy:#06b6d4;--cyd:rgba(6,182,212,.12);
+  --pu:#a855f7;--pud:rgba(168,85,247,.12);
+  color-scheme:dark;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100%}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes breathe{0%,100%{transform:scale(.92);opacity:.4}50%{transform:scale(1.08);opacity:.8}}
+
+/* Header */
+.hdr{position:sticky;top:0;z-index:50;background:rgba(3,7,18,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
+.hdr-in{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .3s}
+.logo-ic.g{background:var(--bld)}.logo-ic.m{background:var(--gnd)}
+.logo h1{font-size:15px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
+.logo small{font-size:9px;color:var(--td);text-transform:uppercase;letter-spacing:1px;display:block}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.mtog{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid;transition:all .3s;background:none}
+.mtog.g{color:var(--bl);border-color:rgba(59,130,246,.3);background:var(--bld)}
+.mtog.m{color:var(--gn);border-color:rgba(16,185,129,.3);background:var(--gnd)}
+.ttrk{width:34px;height:18px;border-radius:9px;position:relative;transition:background .3s}
+.ttrk.g{background:var(--bl)}.ttrk.m{background:var(--gn)}
+.tth{position:absolute;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .3s}
+.tth.g{transform:translateX(2px)}.tth.m{transform:translateX(16px)}
+.gear-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--bd);background:none;color:var(--td);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.gear-btn:hover{background:var(--sf2);color:var(--tm)}
+.gear-btn svg{width:16px;height:16px}
+.tabs{display:flex;gap:3px;padding:0 16px 8px;max-width:1280px;margin:0 auto;overflow-x:auto}
+.tab{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:10px;border:1px solid transparent;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all .2s;background:none;color:var(--td)}
+.tab:hover{color:var(--tm);background:rgba(255,255,255,.03)}
+.tab.a.g{color:#93c5fd;background:var(--bld);border-color:rgba(59,130,246,.3)}
+.tab.a.m{color:#6ee7b7;background:var(--gnd);border-color:rgba(16,185,129,.3)}
+.tab svg{width:15px;height:15px}
+
+/* Main */
+.mn{flex:1;display:flex;gap:14px;padding:14px;max-width:1280px;margin:0 auto;width:100%;overflow:hidden;min-height:0}
+@media(max-width:768px){.mn{flex-direction:column}.ip{max-height:40vh}}
+.pnl{background:var(--sf);border-radius:14px;border:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.tp{flex:1}.ip{width:320px;flex-shrink:0}
+@media(max-width:768px){.ip{width:100%}}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd)}
+.pt{font-size:12px;font-weight:500;color:var(--tm);display:flex;align-items:center;gap:7px}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--rd);animation:blink 1.2s infinite;display:none}
+.ldot.on{display:inline-block}
+.ltxt{font-size:10px;color:var(--rd);display:none}
+.ltxt.on{display:inline}
+.eng-badge{font-size:9px;padding:2px 7px;border-radius:99px;border:1px solid;display:none}
+.eng-badge.on{display:inline-flex;align-items:center;gap:3px}
+.eng-badge.dg{color:#10b981;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+.eng-badge.ws{color:#f59e0b;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
+.pa{display:flex;gap:1px}
+.ib{width:28px;height:28px;border-radius:7px;border:none;background:none;color:var(--td);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ib:hover{background:var(--sf2);color:var(--tm)}
+.ib svg{width:13px;height:13px}
+.lb{display:none;align-items:center;gap:7px;padding:7px 14px;border-bottom:1px solid var(--bd)}
+.lb.vis{display:flex}
+.lb label{font-size:10px;color:var(--td)}
+.lsel{background:var(--sf2);border:1px solid var(--bd);border-radius:7px;color:var(--tx);padding:5px 8px;font-size:12px;cursor:pointer;outline:none}
+
+/* Wave */
+.wave-bar{display:none;align-items:center;gap:4px;padding:5px 14px;border-bottom:1px solid var(--bd);height:40px}
+.wave-bar.vis{display:flex}
+.wave-label{font-size:9px;color:var(--td);white-space:nowrap;margin-right:2px}
+#waveform{flex:1;height:28px}
+.wave-db{font-size:9px;color:var(--tm);width:36px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* Transcript */
+.ta{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:10px;padding:30px 20px}
+.eic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.eic.g{background:var(--bld);color:rgba(59,130,246,.5)}.eic.m{background:var(--gnd);color:rgba(16,185,129,.5)}
+.eic svg{width:22px;height:22px}
+.etl{font-size:12px;color:var(--tm);font-weight:500}
+.esb{font-size:10px;color:var(--td);max-width:280px;line-height:1.5}
+.bub{animation:fadeIn .12s ease-out}
+.bm{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.bt{font-size:9px;color:var(--td)}
+.bl{font-size:9px;padding:1px 6px;border-radius:99px;background:var(--sf2);color:var(--td)}
+.bx{padding:8px 12px;border-radius:14px 14px 14px 3px;font-size:13px;line-height:1.55;color:#e5e7eb;word-wrap:break-word}
+.bx.g{background:rgba(30,41,59,.5);border:1px solid rgba(51,65,85,.3)}
+.bx.m{background:rgba(6,78,59,.2);border:1px solid rgba(16,185,129,.15)}
+#interim-wrap{display:none;padding:8px 12px;border-radius:14px 14px 14px 3px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);font-size:13px;color:#93c5fd;line-height:1.55;word-wrap:break-word;transition:none}
+#interim-wrap.vis{display:block}
+
+/* Input */
+.inb{display:flex;align-items:center;gap:7px;padding:8px 10px;border-top:1px solid var(--bd)}
+.inw{flex:1;position:relative}
+.tin{width:100%;background:rgba(17,24,39,.5);border:1px solid var(--bd);border-radius:10px;padding:9px 36px 9px 12px;font-size:13px;color:var(--tx);outline:none;transition:border-color .2s;font-family:inherit}
+.tin:focus{border-color:var(--bdl)}.tin::placeholder{color:var(--td)}
+.snd{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:7px;border:none;background:none;color:var(--td);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.snd:hover{background:var(--sf2);color:var(--tm)}
+.snd svg{width:13px;height:13px}
+.mic-wrap{position:relative;flex-shrink:0}
+.mic{position:relative;width:42px;height:42px;border-radius:10px;border:1px solid;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;background:none}
+.mic.idle.g{color:var(--bl);border-color:rgba(59,130,246,.3);background:var(--bld)}
+.mic.idle.m{color:var(--gn);border-color:rgba(16,185,129,.3);background:var(--gnd)}
+.mic.on{color:var(--rd);border-color:rgba(239,68,68,.4);background:var(--rdd)}
+.mic svg{width:18px;height:18px;position:relative;z-index:1}
+.mic-level{position:absolute;inset:-3px;border-radius:13px;border:2px solid rgba(239,68,68,.5);opacity:0;transform:scale(.9);transition:opacity .06s,transform .06s;pointer-events:none}
+.mic-level.pulse{opacity:1;transform:scale(1)}
+
+/* Insights */
+.ia{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;min-height:0}
+.ic{padding:8px 10px;border-radius:10px;border:1px solid;display:flex;gap:7px;animation:slideIn .15s ease-out}
+.ic.term{border-color:rgba(6,182,212,.2);background:var(--cyd)}
+.ic.ins{border-color:rgba(245,158,11,.2);background:var(--amd)}
+.ic.q{border-color:rgba(168,85,247,.2);background:var(--pud)}
+.ic.ai{border-color:rgba(99,102,241,.25);background:rgba(99,102,241,.08);position:relative}
+.ic.ai::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.4),transparent)}
+.ai-src{font-size:8px;color:rgba(129,140,248,.6);margin-top:4px;display:flex;align-items:center;gap:3px}
+.ai-loading{display:flex;align-items:center;gap:6px;padding:10px;border-radius:10px;border:1px dashed rgba(99,102,241,.2);color:rgba(129,140,248,.5);font-size:11px;animation:fadeIn .2s}
+.ai-loading .dot-pulse{display:flex;gap:3px}
+.ai-loading .dot-pulse span{width:4px;height:4px;border-radius:50%;background:rgba(129,140,248,.5);animation:blink 1s infinite}
+.ai-loading .dot-pulse span:nth-child(2){animation-delay:.2s}
+.ai-loading .dot-pulse span:nth-child(3){animation-delay:.4s}
+.ii{flex-shrink:0;margin-top:1px}.ii svg{width:13px;height:13px}
+.ii.term{color:var(--cy)}.ii.ins{color:var(--am)}.ii.q{color:var(--pu)}.ii.ai{color:#818cf8}
+.ib2{flex:1;min-width:0}
+.icat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#22d3ee}
+.itn{font-size:12px;font-weight:600;color:#fff;margin-top:1px}
+.idf{font-size:11px;color:#d1d5db;line-height:1.45;margin-top:3px}
+.itx{font-size:12px;color:#e5e7eb;line-height:1.45}
+.ttags{display:flex;flex-wrap:wrap;gap:4px;padding-bottom:4px}
+.ttag{font-size:9px;padding:2px 8px;border-radius:99px}
+.ttag.g{background:var(--bld);color:#93c5fd}.ttag.m{background:var(--gnd);color:#6ee7b7}
+.pbdg{display:flex;align-items:center;gap:3px;font-size:9px;padding:2px 7px;border-radius:99px;background:rgba(16,185,129,.08);color:var(--gn);border:1px solid rgba(16,185,129,.15)}
+.qr{border-top:1px solid var(--bd);padding:8px 10px;display:none}.qr.vis{display:block}
+.qr summary{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--td);cursor:pointer;list-style:none;user-select:none}
+.qr summary::-webkit-details-marker{display:none}
+.qrl{max-height:160px;overflow-y:auto;margin-top:6px}
+.qri{display:flex;align-items:center;justify-content:space-between;padding:5px 7px;border-radius:6px;cursor:pointer;font-size:11px;border:none;background:none;color:var(--tx);width:100%;text-align:left;transition:background .15s}
+.qri:hover{background:rgba(255,255,255,.04)}.qri .c{font-size:9px;color:var(--td)}
+
+/* Teleprompter */
+.tpv{flex:1;display:none;flex-direction:column}.tpv.vis{display:flex}
+.tpc{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd)}
+.tpl{font-size:12px;font-weight:500;color:var(--tm)}
+.tpr{display:flex;align-items:center;gap:10px}
+.spc{display:flex;align-items:center;gap:5px}
+.spl{font-size:10px;color:var(--td)}
+.sps{width:70px;accent-color:var(--bl)}
+.spv{font-size:10px;color:var(--tm);width:26px}
+.tpscr{flex:1;overflow:hidden;padding:20px 28px;mask-image:linear-gradient(transparent 0%,#000 15%,#000 85%,transparent 100%);-webkit-mask-image:linear-gradient(transparent 0%,#000 15%,#000 85%,transparent 100%)}
+.tptx{font-size:26px;line-height:1.7;font-weight:300;text-align:center;letter-spacing:.3px;color:#fff}
+@media(max-width:768px){.tptx{font-size:18px}}
+.tpin{border-top:1px solid var(--bd);padding:8px 10px}
+.tpta{width:100%;background:rgba(17,24,39,.5);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--tx);outline:none;resize:none;height:52px;font-family:inherit}
+.tpta::placeholder{color:var(--td)}
+.nv{flex:1;display:flex;flex-direction:column;min-height:0}.nv.hid{display:none}
+
+/* Settings Panel */
+.settings-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);padding:14px}
+.settings-overlay.vis{display:flex}
+.settings{background:var(--sf);border-radius:16px;border:1px solid var(--bd);max-width:440px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.settings-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bd)}
+.settings-hdr h3{font-size:15px;font-weight:600}
+.settings-body{flex:1;overflow-y:auto;padding:20px}
+.s-section{margin-bottom:20px}
+.s-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--td);font-weight:600;margin-bottom:8px}
+.s-desc{font-size:11px;color:var(--td);line-height:1.5;margin-bottom:10px}
+.s-row{display:flex;gap:8px;margin-bottom:8px}
+.s-card{flex:1;padding:12px;border-radius:10px;border:2px solid var(--bd);cursor:pointer;transition:all .2s;background:none;text-align:left;color:var(--tx)}
+.s-card:hover{border-color:var(--bdl)}
+.s-card.sel{border-color:var(--bl);background:var(--bld)}
+.s-card.sel.med-sel{border-color:var(--gn);background:var(--gnd)}
+.s-card-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.s-card-sub{font-size:10px;color:var(--td);line-height:1.4}
+.s-card-badge{display:inline-block;font-size:8px;padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:700;vertical-align:middle}
+.s-card-badge.fast{background:rgba(16,185,129,.15);color:#10b981}
+.s-card-badge.free{background:rgba(59,130,246,.15);color:#3b82f6}
+.s-input{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;font-family:inherit;transition:border-color .2s}
+.s-input:focus{border-color:var(--bl)}
+.s-input::placeholder{color:var(--td)}
+.s-hint{font-size:10px;color:var(--td);margin-top:5px;line-height:1.4}
+.s-hint a{color:var(--bl);text-decoration:none}
+.s-hint a:hover{text-decoration:underline}
+.s-save{width:100%;padding:10px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.s-save.g{background:var(--bl);color:#fff}.s-save.m{background:var(--gn);color:#fff}
+.s-save:hover{filter:brightness(1.1)}
+.s-status{text-align:center;font-size:11px;margin-top:8px;min-height:16px}
+.s-status.ok{color:var(--gn)}.s-status.err{color:var(--rd)}
+
+/* Modal */
+.mov{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);padding:14px}
+.mov.vis{display:flex}
+.mo{background:var(--sf);border-radius:14px;border:1px solid var(--bd);max-width:480px;width:100%;max-height:80vh;display:flex;flex-direction:column}
+.moh{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bd)}.moh h3{font-size:14px;font-weight:600}
+.mob{flex:1;overflow-y:auto;padding:18px}
+.msl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--td);font-weight:600;margin-bottom:6px}
+.mtx{font-size:12px;color:#d1d5db;white-space:pre-wrap;line-height:1.7;font-family:inherit}
+.mof{display:flex;gap:7px;padding:10px 18px;border-top:1px solid var(--bd)}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 14px;border-radius:10px;border:none;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn svg{width:13px;height:13px}
+.btn-gh{background:var(--sf2);color:var(--tm)}.btn-gh:hover{background:var(--bd)}
+.btn-pr.g{background:var(--bl);color:#fff}.btn-pr.m{background:var(--gn);color:#fff}.btn-pr:hover{filter:brightness(1.1)}
+.mss{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.mstags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.mstag{font-size:10px;padding:3px 9px;border-radius:99px;background:var(--sf2);color:#d1d5db}
+.mst{font-size:11px;margin-top:5px}.mstn{font-weight:600;color:var(--cy)}.mstd{color:var(--td)}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="logo">
+      <div class="logo-ic g" id="logo-icon">
+        <svg id="svg-brain" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/></svg>
+        <svg id="svg-med" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+      </div>
+      <div><h1>Conversate AI</h1><small id="logo-sub">General Assistant</small></div>
+    </div>
+    <div class="hdr-right">
+      <button class="mtog g" id="mode-btn" onclick="toggleMode()"><span id="mode-label">General</span><div class="ttrk g" id="mode-track"><div class="tth g" id="mode-thumb"></div></div></button>
+      <button class="gear-btn" onclick="openSettings()" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab a g" data-tab="conversate" onclick="setTab('conversate')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>Conversate</button>
+    <button class="tab" data-tab="transcribe" onclick="setTab('transcribe')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Transcribe</button>
+    <button class="tab" data-tab="translate" onclick="setTab('translate')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>Translate</button>
+    <button class="tab" data-tab="teleprompt" onclick="setTab('teleprompt')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Teleprompt</button>
+  </div>
+</header>
+
+<div class="mn">
+  <div class="pnl tp">
+    <div class="nv" id="normal-view">
+      <div class="ph">
+        <div class="pt">
+          <span id="panel-title">Live Conversation</span>
+          <span class="ldot" id="live-dot"></span>
+          <span class="ltxt" id="live-txt">Listening...</span>
+          <span class="eng-badge" id="eng-badge"></span>
+        </div>
+        <div class="pa">
+          <button class="ib" onclick="copyTranscript()" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="ib" onclick="exportSession()" title="Export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></button>
+          <button class="ib" onclick="showSummary()" title="Summary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></button>
+          <button class="ib" onclick="clearAll()" title="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+        </div>
+      </div>
+      <div class="lb" id="lang-bar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><label>Language:</label><select class="lsel" id="lang-select" onchange="S.lang=this.value"></select></div>
+      <div class="wave-bar" id="wave-bar"><span class="wave-label">Audio</span><canvas id="waveform" height="28"></canvas><span class="wave-db" id="wave-db">—</span></div>
+      <div class="ta" id="transcript-area">
+        <div class="empty" id="empty-state">
+          <div class="eic g" id="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+          <p class="etl" id="empty-title">Mulai percakapan untuk AI insights</p>
+          <p class="esb" id="empty-sub">General Mode: topik, meeting, produktivitas</p>
+        </div>
+        <div id="bubbles"></div>
+        <div id="interim-wrap"></div>
+      </div>
+      <div class="inb">
+        <div class="inw"><input type="text" class="tin" id="manual-input" placeholder="Ketik atau paste teks..." onkeydown="if(event.key==='Enter'){event.preventDefault();submitManual()}"><button class="snd" onclick="submitManual()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
+        <div class="mic-wrap"><div class="mic-level" id="mic-level"></div><button class="mic idle g" id="mic-btn" onclick="toggleMic()"><svg id="mic-on-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><svg id="mic-off-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><line x1="2" x2="22" y1="2" y2="22"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/><path d="M5 10v2a7 7 0 0 0 12 5"/><path d="M15 9.34V5a3 3 0 0 0-5.68-1.33"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12"/><line x1="12" x2="12" y1="19" y2="22"/></svg></button></div>
+      </div>
+    </div>
+    <div class="tpv" id="tp-view">
+      <div class="tpc"><span class="tpl">Teleprompt Mode</span><div class="tpr"><button class="ib" onclick="toggleTP()"><svg id="tp-play-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg><svg id="tp-pause-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg></button><div class="spc"><span class="spl">Speed</span><input type="range" class="sps" min="0.5" max="3" step="0.5" value="1" onchange="S.tpSpeed=parseFloat(this.value);restartTPScroll();document.getElementById('tp-speed-val').textContent=this.value+'x'"><span class="spv" id="tp-speed-val">1x</span></div></div></div>
+      <div class="tpscr" id="tp-scroll"><p class="tptx" id="tp-text">Masukkan teks teleprompter atau mulai merekam...</p></div>
+      <div class="tpin"><textarea class="tpta" id="tp-input" placeholder="Paste teks presentasi di sini..." oninput="S.tpText=this.value;$('tp-text').textContent=this.value||'Masukkan teks teleprompter...'"></textarea></div>
+    </div>
+  </div>
+  <!-- Insights -->
+  <div class="pnl ip" id="insights-panel">
+    <div class="ph"><div class="pt"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Insights</div><div class="pbdg" id="pharma-badge" style="display:none"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>Pharma</div></div>
+    <div class="ia" id="insight-area">
+      <div class="empty" id="insight-empty"><div class="eic g" id="insight-empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div><p class="etl">AI insights akan muncul di sini</p><p class="esb" id="insight-empty-sub">Deteksi: topik, meeting, deadline, ide, follow-up</p></div>
+      <div id="topic-tags" class="ttags" style="display:none"></div>
+      <div id="insight-cards"></div>
+    </div>
+    <div class="qr" id="quick-ref"><details><summary><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Quick Reference (<span id="qr-count">0</span> terms)<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></summary><div class="qrl" id="qr-list"></div></details></div>
+  </div>
+</div>
+
+<!-- Settings Panel -->
+<div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="settings">
+    <div class="settings-hdr"><h3>Settings</h3><button class="ib" onclick="closeSettings()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+    <div class="settings-body">
+      <div class="s-section">
+        <div class="s-label">Transcription Engine</div>
+        <div class="s-desc">Deepgram memberikan transcription real-time (<300ms latency) melalui WebSocket streaming. Web Speech API gratis tapi lebih lambat (500ms-2s).</div>
+        <div class="s-row">
+          <button class="s-card" id="card-dg" onclick="selectEngine('deepgram')">
+            <div class="s-card-title">Deepgram <span class="s-card-badge fast">REAL-TIME</span></div>
+            <div class="s-card-sub">WebSocket streaming, <300ms, 50+ bahasa, medical vocabulary</div>
+          </button>
+          <button class="s-card sel" id="card-ws" onclick="selectEngine('webspeech')">
+            <div class="s-card-title">Web Speech <span class="s-card-badge free">FREE</span></div>
+            <div class="s-card-sub">Browser built-in, 500ms-2s delay, gratis tanpa API key</div>
+          </button>
+        </div>
+      </div>
+      <div class="s-section" id="dg-settings" style="display:none">
+        <div class="s-label">Deepgram API Key</div>
+        <input class="s-input" id="dg-key-input" type="password" placeholder="Paste API key dari Deepgram console..." value="">
+        <div class="s-hint">Daftar gratis di <a href="https://console.deepgram.com/signup" target="_blank">console.deepgram.com</a> — dapat $200 credit (≈ 45.000 menit transcription).</div>
+      </div>
+      <div class="s-section" id="dg-model-section" style="display:none">
+        <div class="s-label">Deepgram Model</div>
+        <div class="s-row">
+          <button class="s-card sel" id="card-nova2" onclick="selectDGModel('nova-2')">
+            <div class="s-card-title">Nova-2</div>
+            <div class="s-card-sub">Fastest, best for real-time</div>
+          </button>
+          <button class="s-card" id="card-nova2med" onclick="selectDGModel('nova-2-medical')">
+            <div class="s-card-title">Nova-2 Medical</div>
+            <div class="s-card-sub">Optimized medical vocabulary</div>
+          </button>
+        </div>
+      </div>
+      <div class="s-section" style="border-top:1px solid var(--bd);padding-top:20px">
+        <div class="s-label">AI Insights Engine — Perplexity Sonar</div>
+        <div class="s-desc">Perplexity Sonar menganalisis percakapan secara real-time dan memberikan insight mendalam berbasis web search. Tanpa API key, hanya local keyword matching yang aktif.</div>
+        <input class="s-input" id="px-key-input" type="password" placeholder="Paste Perplexity API key..." value="">
+        <div class="s-hint">Dapatkan API key di <a href="https://www.perplexity.ai/settings/api" target="_blank">perplexity.ai/settings/api</a>. Model: sonar (cepat) atau sonar-pro (akurat).</div>
+        <div style="margin-top:8px">
+          <div class="s-row">
+            <button class="s-card sel" id="card-sonar" onclick="selectPXModel('sonar')">
+              <div class="s-card-title">Sonar <span class="s-card-badge fast">FAST</span></div>
+              <div class="s-card-sub">Quick analysis, lower cost</div>
+            </button>
+            <button class="s-card" id="card-sonar-pro" onclick="selectPXModel('sonar-pro')">
+              <div class="s-card-title">Sonar Pro <span class="s-card-badge" style="background:rgba(99,102,241,.15);color:#818cf8">DEEP</span></div>
+              <div class="s-card-sub">Deeper analysis, citations</div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="s-save g" id="s-save-btn" onclick="saveSettings()">Save Settings</button>
+        <div class="s-status" id="s-status"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Summary Modal -->
+<div class="mov" id="summary-modal"><div class="mo"><div class="moh"><h3>Conversation Summary</h3><button class="ib" onclick="closeSummary()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="mob"><div class="msl">Key Points</div><div class="mtx" id="summary-text"></div><div class="mss" id="summary-topics-section" style="display:none"><div class="msl">Topics</div><div class="mstags" id="summary-topics"></div></div><div class="mss" id="summary-terms-section" style="display:none"><div class="msl">Medical Terms</div><div id="summary-terms"></div></div></div><div class="mof"><button class="btn btn-gh" onclick="navigator.clipboard.writeText($('summary-text').textContent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button><button class="btn btn-pr g" id="summary-export-btn" onclick="exportSession();closeSummary()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>Export</button></div></div></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CONVERSATE AI v4 — DUAL ENGINE
+//  Engine 1: Deepgram WebSocket (real-time <300ms)
+//  Engine 2: Web Speech API (free fallback)
+// ═══════════════════════════════════════════════
+
+const TERMS={
+"hypertension":{d:"Tekanan darah tinggi ≥140/90. Faktor risiko CVD.",c:"Cardiology"},
+"dyslipidemia":{d:"Kelainan profil lipid. Target LDL <100 mg/dL.",c:"Cardiology"},
+"rosuvastatin":{d:"Statin poten ↓LDL 55%. 5-40mg. Crestor®.",c:"Pharmacology"},
+"ezetimibe":{d:"Inhibitor absorpsi kolesterol. ↓LDL 15-20%. 10mg.",c:"Pharmacology"},
+"amlodipine":{d:"CCB long-acting. T½ 30-50 jam. 2.5-10mg.",c:"Pharmacology"},
+"valsartan":{d:"ARB hipertensi & HF. 80-320mg. Tanpa batuk.",c:"Pharmacology"},
+"vonoprazan":{d:"P-CAB. Lebih cepat dari PPI. 10-20mg.",c:"Pharmacology"},
+"sacubitril":{d:"ARNI + valsartan untuk HFrEF. Entresto®.",c:"Pharmacology"},
+"diabetes":{d:"Gangguan metabolisme glukosa. HbA1c ≥6.5%.",c:"Endocrinology"},
+"atherosclerosis":{d:"Plak ateromatosa. Inflamasi kronik arteri.",c:"Cardiology"},
+"statin":{d:"Inhibisi HMG-CoA reductase. First-line dyslipidemia.",c:"Pharmacology"},
+"ARB":{d:"Angiotensin II Receptor Blocker.",c:"Pharmacology"},
+"ACEi":{d:"ACE Inhibitor. Efek samping: batuk kering.",c:"Pharmacology"},
+"CCB":{d:"Calcium Channel Blocker.",c:"Pharmacology"},
+"PPI":{d:"Proton Pump Inhibitor.",c:"Pharmacology"},
+"GFR":{d:"Glomerular Filtration Rate. Normal >90.",c:"Nephrology"},
+"HbA1c":{d:"Hemoglobin terglikasi. Target DM <7%.",c:"Endocrinology"},
+"LDL":{d:"Low-Density Lipoprotein.",c:"Cardiology"},
+"HDL":{d:"High-Density Lipoprotein. >40(♂) >50(♀).",c:"Cardiology"},
+"NSAID":{d:"Anti-inflamasi non-steroid.",c:"Pharmacology"},
+"BPOM":{d:"Badan Pengawas Obat dan Makanan.",c:"Regulatory"},
+"HNA":{d:"Harga Netto Apotek.",c:"Business"},
+"HPP":{d:"Harga Pokok Produksi.",c:"Business"},
+"PBF":{d:"Pedagang Besar Farmasi.",c:"Business"},
+"formularium":{d:"Daftar obat BPJS/faskes.",c:"Regulatory"},
+"RCT":{d:"Randomized Controlled Trial.",c:"Clinical Trial"},
+"metformin":{d:"First-line T2DM. 500-2000mg.",c:"Pharmacology"},
+"warfarin":{d:"Antikoagulan oral. INR 2-3.",c:"Hematology"},
+"aspirin":{d:"Antiplatelet COX-1. 75-100mg.",c:"Cardiology"},
+"omeprazole":{d:"PPI. 20-40mg.",c:"Pharmacology"},
+"insulin":{d:"Hormon glukosa. Basal/bolus.",c:"Endocrinology"},
+};
+
+const LANGS=[
+{c:"id-ID",n:"Indonesia",f:"🇮🇩",dg:"id"},{c:"en-US",n:"English",f:"🇺🇸",dg:"en-US"},
+{c:"zh-CN",n:"中文",f:"🇨🇳",dg:"zh"},{c:"ja-JP",n:"日本語",f:"🇯🇵",dg:"ja"},
+{c:"ko-KR",n:"한국어",f:"🇰🇷",dg:"ko"},{c:"ms-MY",n:"Melayu",f:"🇲🇾",dg:"ms"},
+{c:"th-TH",n:"ไทย",f:"🇹🇭",dg:"th"},{c:"de-DE",n:"Deutsch",f:"🇩🇪",dg:"de"},
+{c:"fr-FR",n:"Français",f:"🇫🇷",dg:"fr"},{c:"es-ES",n:"Español",f:"🇪🇸",dg:"es"},
+{c:"hi-IN",n:"हिन्दी",f:"🇮🇳",dg:"hi"},{c:"pt-BR",n:"Português",f:"🇧🇷",dg:"pt-BR"},
+{c:"it-IT",n:"Italiano",f:"🇮🇹",dg:"it"},{c:"vi-VN",n:"Tiếng Việt",f:"🇻🇳",dg:"vi"},
+{c:"ru-RU",n:"Русский",f:"🇷🇺",dg:"ru"},
+];
+
+const S={med:false,tab:"conversate",listening:false,transcripts:[],lang:"id-ID",tpText:"",tpSpeed:1,tpPlaying:false,_aLen:0,insights:{terms:[],insights:[],questions:[],topics:[],ai:[]},engine:"webspeech",dgKey:"",dgModel:"nova-2",pxKey:"",pxModel:"sonar"};
+let recog=null,tpInterval=null,audioCtx=null,analyser=null,micStream=null,animFrame=null,dgSocket=null,mediaRecorder=null;
+let pxDebounceTimer=null, pxLastQuery="", pxPending=false;
+const $=id=>document.getElementById(id);
+
+// ═══ ALIASES: Indonesian ↔ English medical term mapping for fuzzy matching ═══
+const TERM_ALIASES={
+  // Indonesian → canonical term
+  "hipertensi":"hypertension","tekanan darah tinggi":"hypertension","tekanan darah":"hypertension","tensi tinggi":"hypertension",
+  "dislipidemia":"dyslipidemia","kolesterol tinggi":"dyslipidemia","kolesterol":"dyslipidemia","lemak darah":"dyslipidemia",
+  "kencing manis":"diabetes","gula darah":"diabetes","diabetik":"diabetes","dm":"diabetes","tipe 2":"diabetes",
+  "aterosklerosis":"atherosclerosis","penyumbatan pembuluh":"atherosclerosis","plak arteri":"atherosclerosis",
+  "gagal jantung":"heart failure","jantung lemah":"heart failure","heart failure":"heart failure",
+  "serangan jantung":"myocardial infarction","infark miokard":"myocardial infarction",
+  "stroke":"stroke","penyakit serebrovaskular":"stroke",
+  "ginjal":"GFR","fungsi ginjal":"GFR","creatinine":"GFR","kreatinin":"GFR",
+  "asam lambung":"PPI","maag":"PPI","gerd":"PPI","tukak lambung":"PPI","reflux":"PPI",
+  "antikoagulan":"warfarin","pengencer darah":"warfarin",
+  "obat nyeri":"NSAID","anti radang":"NSAID","anti inflamasi":"NSAID",
+  "obat maag":"omeprazole","proton pump":"PPI",
+  "tekanan darah":"amlodipine","antihipertensi":"amlodipine",
+  "penurun kolesterol":"statin","obat kolesterol":"statin",
+  "obat diabetes":"metformin","obat gula":"metformin",
+  "obat jantung":"valsartan",
+  "bpom":"BPOM","registrasi obat":"BPOM","izin edar":"BPOM",
+  "harga obat":"HNA","harga apotek":"HNA","harga jual":"HNA",
+  "biaya produksi":"HPP","cost of goods":"HPP","cogs":"HPP",
+  "distributor":"PBF","distribusi obat":"PBF",
+  "tanggungan bpjs":"formularium","daftar obat":"formularium","e-catalog":"formularium",
+  "uji klinis":"RCT","clinical trial":"RCT","penelitian":"RCT",
+  "bioavailabilitas":"bioavailability","ketersediaan hayati":"bioavailability",
+  "waktu paruh":"half-life","elimination half life":"half-life",
+  "kontraindikasi":"contraindication","tidak boleh":"contraindication",
+  "interaksi obat":"drug interaction","interaksi":"drug interaction",
+  "efek samping":"adverse event","reaksi obat":"adverse event","adr":"adverse event",
+  "efikasi":"efficacy","efektivitas":"efficacy","keampuhan":"efficacy",
+};
+
+// Extra terms not in TERMS dict but detected via aliases
+const EXTRA_TERMS={
+  "heart failure":{d:"Gagal jantung — ketidakmampuan jantung memompa darah adekuat. HFrEF (EF<40%) vs HFpEF. Terapi: ARNI, BB, MRA, SGLT2i.",c:"Cardiology"},
+  "myocardial infarction":{d:"Infark miokard akut — nekrosis otot jantung akibat oklusi koroner. STEMI vs NSTEMI. Tatalaksana: dual antiplatelet + revaskularisasi.",c:"Cardiology"},
+  "stroke":{d:"Gangguan peredaran darah otak. Iskemik (80%) vs hemoragik. Golden period: 4.5 jam untuk trombolisis.",c:"Neurology"},
+};
+
+// Load saved settings
+try{const saved=JSON.parse(localStorage.getItem('conversate_settings')||'{}');if(saved.engine)S.engine=saved.engine;if(saved.dgKey)S.dgKey=saved.dgKey;if(saved.dgModel)S.dgModel=saved.dgModel;if(saved.pxKey)S.pxKey=saved.pxKey;if(saved.pxModel)S.pxModel=saved.pxModel;}catch(e){}
+
+// Init
+(function(){
+  const sel=$('lang-select');
+  LANGS.forEach(l=>{const o=document.createElement('option');o.value=l.c;o.textContent=`${l.f} ${l.n}`;if(l.c===S.lang)o.selected=true;sel.appendChild(o)});
+  const list=$('qr-list'),entries=Object.entries(TERMS);
+  $('qr-count').textContent=entries.length;
+  entries.forEach(([t,info])=>{const b=document.createElement('button');b.className='qri';b.innerHTML=`<span>${t}</span><span class="c">${info.c}</span>`;b.onclick=()=>addQuickRefTerm(t);list.appendChild(b)});
+})();
+
+// ═══ AUDIO VISUALIZER ═══
+async function startAudioVis(){
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:16000}});
+    const src=audioCtx.createMediaStreamSource(micStream);
+    analyser=audioCtx.createAnalyser();
+    analyser.fftSize=256;analyser.smoothingTimeConstant=0.5;
+    src.connect(analyser);
+    $('wave-bar').classList.add('vis');
+    drawWave();
+  }catch(e){console.warn("Audio vis err:",e)}
+}
+function stopAudioVis(){
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null}
+  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+  if(audioCtx&&audioCtx.state!=='closed'){audioCtx.close().catch(()=>{});audioCtx=null}
+  analyser=null;$('wave-bar').classList.remove('vis');$('mic-level').classList.remove('pulse');
+}
+function drawWave(){
+  if(!analyser)return;
+  animFrame=requestAnimationFrame(drawWave);
+  const cv=$('waveform'),cx=cv.getContext('2d');
+  const W=cv.offsetWidth,H=cv.offsetHeight;
+  if(cv.width!==W*2){cv.width=W*2;cv.height=H*2}
+  cx.setTransform(2,0,0,2,0,0);
+  const buf=new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(buf);
+  cx.clearRect(0,0,W,H);
+  let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i];
+  const avg=sum/buf.length;
+  $('wave-db').textContent=avg>0?Math.round(20*Math.log10(avg/255)+100)+' dB':'—';
+  const lvl=$('mic-level');
+  if(avg>15){lvl.classList.add('pulse');lvl.style.transform=`scale(${.92+avg/255*.2})`;lvl.style.opacity=Math.min(1,avg/60)}else{lvl.classList.remove('pulse')}
+  const ac=S.med?[16,185,129]:[59,130,246];
+  const bw=Math.max(1.5,(W/buf.length)*2.5);
+  let x=0;
+  for(let i=0;i<buf.length;i++){
+    const v=buf[i]/255,bh=v*H*.9,a=.3+v*.7;
+    cx.fillStyle=`rgba(${ac[0]},${ac[1]},${ac[2]},${a})`;
+    cx.fillRect(x,H-bh,bw,bh);x+=bw+1;if(x>W)break;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  ENGINE 1: DEEPGRAM WEBSOCKET STREAMING
+//  True real-time: audio → WebSocket → result <300ms
+// ═══════════════════════════════════════════════
+async function startDeepgram(){
+  if(!S.dgKey){alert("Deepgram API Key belum diisi. Buka Settings (⚙️) untuk memasukkan key.");return false}
+  const lang=LANGS.find(l=>l.c===S.lang);
+  const dgLang=lang?.dg||'id';
+  const model=S.dgModel||'nova-2';
+  const params=new URLSearchParams({
+    model:model,language:dgLang,
+    punctuate:'true',interim_results:'true',
+    utterance_end_ms:'1000',vad_events:'true',
+    smart_format:'true',encoding:'linear16',
+    sample_rate:'16000',channels:'1'
+  });
+  const url=`wss://api.deepgram.com/v1/listen?${params}`;
+  return new Promise((resolve)=>{
+    try{
+      dgSocket=new WebSocket(url,['token',S.dgKey]);
+      dgSocket.onopen=()=>{
+        console.log("Deepgram connected");
+        startMediaRecorder();
+        resolve(true);
+      };
+      dgSocket.onmessage=(e)=>{
+        try{
+          const data=JSON.parse(e.data);
+          if(data.type==='Results'&&data.channel){
+            const alt=data.channel.alternatives[0];
+            if(!alt)return;
+            const text=alt.transcript;
+            if(!text)return;
+            const isFinal=data.is_final;
+            if(isFinal){
+              const trimmed=text.trim();
+              if(trimmed){
+                const langInfo=LANGS.find(l=>l.c===S.lang);
+                S.transcripts.push({id:Date.now(),text:trimmed,ts:Date.now(),lang:langInfo?.n||S.lang});
+                $('interim-wrap').classList.remove('vis');
+                $('interim-wrap').textContent='';
+                appendBubble(S.transcripts[S.transcripts.length-1]);
+                analyze();
+              }
+            }else{
+              // INTERIM — instant display
+              const el=$('interim-wrap');
+              el.textContent=text;
+              if(!el.classList.contains('vis'))el.classList.add('vis');
+              const ta=$('transcript-area');ta.scrollTop=ta.scrollHeight;
+            }
+          }
+        }catch(err){}
+      };
+      dgSocket.onerror=(e)=>{console.error("DG error:",e);resolve(false)};
+      dgSocket.onclose=(e)=>{
+        console.log("DG closed:",e.code);
+        if(S.listening&&e.code!==1000){
+          // Reconnect
+          setTimeout(()=>{if(S.listening)startDeepgram()},500);
+        }
+      };
+    }catch(e){console.error("DG connect err:",e);resolve(false)}
+  });
+}
+
+function startMediaRecorder(){
+  if(!micStream)return;
+  try{
+    // Use AudioWorklet for low-latency PCM streaming
+    const actx=audioCtx||new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+    const source=actx.createMediaStreamSource(micStream);
+    const processor=actx.createScriptProcessor(2048,1,1);
+    processor.onaudioprocess=(e)=>{
+      if(!dgSocket||dgSocket.readyState!==WebSocket.OPEN)return;
+      const input=e.inputBuffer.getChannelData(0);
+      // Convert float32 to int16
+      const buf=new ArrayBuffer(input.length*2);
+      const view=new DataView(buf);
+      for(let i=0;i<input.length;i++){
+        const s=Math.max(-1,Math.min(1,input[i]));
+        view.setInt16(i*2,s<0?s*0x8000:s*0x7FFF,true);
+      }
+      dgSocket.send(buf);
+    };
+    source.connect(processor);
+    processor.connect(actx.destination);
+    // Store for cleanup
+    S._dgProcessor=processor;S._dgSource=source;
+  }catch(e){
+    // Fallback: MediaRecorder with small timeslice
+    console.log("ScriptProcessor failed, using MediaRecorder");
+    try{
+      mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm;codecs=opus'});
+      mediaRecorder.ondataavailable=(e)=>{
+        if(dgSocket&&dgSocket.readyState===WebSocket.OPEN&&e.data.size>0){
+          dgSocket.send(e.data);
+        }
+      };
+      mediaRecorder.start(100); // 100ms chunks
+    }catch(e2){console.error("MediaRecorder fallback failed:",e2)}
+  }
+}
+
+function stopDeepgram(){
+  if(S._dgProcessor){try{S._dgProcessor.disconnect()}catch(e){}S._dgProcessor=null}
+  if(S._dgSource){try{S._dgSource.disconnect()}catch(e){}S._dgSource=null}
+  if(mediaRecorder&&mediaRecorder.state!=='inactive'){try{mediaRecorder.stop()}catch(e){}mediaRecorder=null}
+  if(dgSocket){try{dgSocket.close(1000)}catch(e){}dgSocket=null}
+}
+
+// ═══════════════════════════════════════════════
+//  ENGINE 2: WEB SPEECH API (FALLBACK)
+// ═══════════════════════════════════════════════
+function createWSRecog(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return null;
+  const r=new SR();
+  r.lang=S.lang;r.interimResults=true;r.maxAlternatives=1;
+  r.continuous=!/iPad|iPhone|iPod/.test(navigator.userAgent)&&!(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  r.onresult=(e)=>{
+    let interim="",final="";
+    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t;else interim+=t}
+    if(interim){const el=$('interim-wrap');el.textContent=interim;if(!el.classList.contains('vis'))el.classList.add('vis');$('transcript-area').scrollTop=$('transcript-area').scrollHeight}
+    if(final){const trimmed=final.trim();if(trimmed){const lang=LANGS.find(l=>l.c===S.lang);S.transcripts.push({id:Date.now(),text:trimmed,ts:Date.now(),lang:lang?.n||S.lang});$('interim-wrap').classList.remove('vis');$('interim-wrap').textContent='';appendBubble(S.transcripts[S.transcripts.length-1]);analyze()}}
+  };
+  r.onerror=(e)=>{if(e.error==='not-allowed'){alert("Mikrofon ditolak.");stopAll()}};
+  r.onend=()=>{if(S.listening)setTimeout(()=>{if(S.listening){try{recog=createWSRecog();if(recog)recog.start()}catch(e){}}},50)};
+  return r;
+}
+
+// ═══ START / STOP ═══
+async function startAll(){
+  S.listening=true;updateListeningUI();
+  await startAudioVis();
+
+  if(S.engine==='deepgram'&&S.dgKey){
+    const ok=await startDeepgram();
+    if(!ok){
+      console.warn("Deepgram failed, falling back to Web Speech");
+      S.engine='webspeech';
+      recog=createWSRecog();
+      if(recog)try{recog.start()}catch(e){}
+    }
+  }else{
+    recog=createWSRecog();
+    if(!recog){alert("Browser tidak support Speech Recognition. Gunakan Chrome/Safari.");stopAll();return}
+    try{recog.start()}catch(e){stopAll()}
+  }
+
+  updateEngineBadge();
+}
+
+function stopAll(){
+  S.listening=false;
+  stopDeepgram();
+  if(recog){recog.onend=null;recog.onerror=null;try{recog.abort()}catch(e){}recog=null}
+  stopAudioVis();
+  updateListeningUI();
+  $('interim-wrap').classList.remove('vis');$('interim-wrap').textContent='';
+  const eb=$('eng-badge');eb.classList.remove('on');
+}
+
+// ═══ UI UPDATES ═══
+function updateEngineBadge(){
+  const eb=$('eng-badge');
+  if(S.listening){
+    const isDG=S.engine==='deepgram'&&S.dgKey&&dgSocket;
+    eb.className=`eng-badge on ${isDG?'dg':'ws'}`;
+    eb.textContent=isDG?'⚡ Deepgram':'🌐 Web Speech';
+  }else{eb.classList.remove('on')}
+}
+
+function updateModeUI(){
+  const m=S.med,c=m?'m':'g';
+  $('logo-icon').className=`logo-ic ${c}`;$('svg-brain').style.display=m?'none':'';$('svg-med').style.display=m?'':'none';
+  $('logo-sub').textContent=m?'Clinical • Pharma • Medical':'General Assistant';
+  $('mode-btn').className=`mtog ${c}`;$('mode-label').textContent=m?'Medical':'General';
+  $('mode-track').className=`ttrk ${c}`;$('mode-thumb').className=`tth ${c}`;
+  document.querySelectorAll('.tab.a').forEach(t=>{t.classList.remove('g','m');t.classList.add(c)});
+  if(!S.listening)$('mic-btn').className=`mic idle ${c}`;
+  $('empty-icon').className=`eic ${c}`;$('insight-empty-icon').className=`eic ${c}`;
+  $('empty-sub').textContent=m?'Medical Mode: terminologi klinis, farmakologi, regulasi':'General Mode: topik, meeting, produktivitas';
+  $('insight-empty-sub').textContent=m?'Deteksi: obat, klinis, interaksi, dosis, BPOM':'Deteksi: topik, meeting, deadline, ide, follow-up';
+  $('pharma-badge').style.display=m?'flex':'none';$('quick-ref').classList.toggle('vis',m);
+  $('summary-export-btn').className=`btn btn-pr ${c}`;$('s-save-btn').className=`s-save ${c}`;
+  document.querySelectorAll('.bx').forEach(b=>{b.classList.remove('g','m');b.classList.add(c)});
+  document.querySelectorAll('.ttag').forEach(t=>{t.classList.remove('g','m');t.classList.add(c)});
+  $('manual-input').placeholder=m?'Ketik teks medis...':'Ketik atau paste teks...';
+}
+function updateTabUI(){
+  const t=S.tab,c=S.med?'m':'g';
+  document.querySelectorAll('.tab').forEach(btn=>{const a=btn.dataset.tab===t;btn.classList.toggle('a',a);btn.classList.remove('g','m');if(a)btn.classList.add(c)});
+  $('normal-view').classList.toggle('hid',t==='teleprompt');$('tp-view').classList.toggle('vis',t==='teleprompt');
+  $('panel-title').textContent=t==='conversate'?'Live Conversation':t==='transcribe'?'Transcription':'Translation';
+  $('lang-bar').classList.toggle('vis',t==='translate');
+  $('empty-title').textContent=t==='conversate'?'Mulai percakapan untuk AI insights':t==='transcribe'?'Tekan mic untuk transkripsi':'Pilih bahasa lalu tekan mic';
+}
+function updateListeningUI(){
+  const on=S.listening,c=S.med?'m':'g';
+  $('live-dot').classList.toggle('on',on);$('live-txt').classList.toggle('on',on);
+  $('mic-btn').className=on?'mic on':`mic idle ${c}`;
+  $('mic-on-svg').style.display=on?'none':'';$('mic-off-svg').style.display=on?'':'none';
+}
+function appendBubble(t){
+  const c=S.med?'m':'g';
+  const time=new Date(t.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const div=document.createElement('div');div.className='bub';
+  div.innerHTML=`<div class="bm"><span class="bt">${time}</span><span class="bl">${esc(t.lang)}</span></div><div class="bx ${c}">${esc(t.text)}</div>`;
+  $('bubbles').appendChild(div);$('empty-state').style.display='none';
+  requestAnimationFrame(()=>{$('transcript-area').scrollTop=$('transcript-area').scrollHeight});
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function updateInsights(a){
+  const has=a.terms.length||a.insights.length||a.questions.length||(a.ai&&a.ai.length);$('insight-empty').style.display=has?'none':'';
+  const c=S.med?'m':'g',tt=$('topic-tags');
+  if(a.topics.length){tt.style.display='flex';tt.innerHTML=a.topics.map(t=>`<span class="ttag ${c}">#${t}</span>`).join('')}else{tt.style.display='none'}
+  const cards=$('insight-cards');
+  // Remove only local insight cards (not AI cards from Perplexity)
+  cards.querySelectorAll('.ic:not(.ai)').forEach(el=>el.remove());
+  const svB=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`;
+  const svS=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`;
+  const svM=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+  // Insert local cards BEFORE any existing AI cards
+  const firstAI=cards.querySelector('.ic.ai');
+  a.terms.forEach(t=>{const h=`<div class="ic term"><div class="ii term">${svB}</div><div class="ib2"><div class="icat">${t.c}</div><div class="itn">${t.term}</div><div class="idf">${t.d}</div></div></div>`;if(firstAI)firstAI.insertAdjacentHTML('beforebegin',h);else cards.insertAdjacentHTML('beforeend',h)});
+  a.insights.forEach(i=>{const h=`<div class="ic ins"><div class="ii ins">${svS}</div><div class="ib2"><div class="itx">${i}</div></div></div>`;if(firstAI)firstAI.insertAdjacentHTML('beforebegin',h);else cards.insertAdjacentHTML('beforeend',h)});
+  a.questions.forEach(q=>{const h=`<div class="ic q"><div class="ii q">${svM}</div><div class="ib2"><div class="itx">${q}</div></div></div>`;if(firstAI)firstAI.insertAdjacentHTML('beforebegin',h);else cards.insertAdjacentHTML('beforeend',h)});
+  requestAnimationFrame(()=>{$('insight-area').scrollTop=$('insight-area').scrollHeight});
+}
+
+// ═══════════════════════════════════════════════
+//  AI ANALYSIS — HYBRID ENGINE
+//  Layer 1: Local fast detection (fuzzy + aliases)
+//  Layer 2: Perplexity Sonar deep analysis (debounced)
+// ═══════════════════════════════════════════════
+
+function analyze(){
+  const all=S.transcripts.map(t=>t.text).join(' ');if(all.length===S._aLen)return;S._aLen=all.length;
+  const low=all.toLowerCase();
+  // Preserve existing AI insights
+  const prevAI=S.insights.ai||[];
+  const r={terms:[],insights:[],questions:[],topics:[],ai:prevAI};
+  const seen=new Set();
+
+  if(S.med){
+    // ── Direct term matching ──
+    for(const[t,info]of Object.entries(TERMS)){
+      if(low.includes(t.toLowerCase())&&!seen.has(t)){seen.add(t);r.terms.push({term:t,...info})}
+    }
+    // ── Fuzzy alias matching (Indonesian → canonical) ──
+    for(const[alias,canonical]of Object.entries(TERM_ALIASES)){
+      if(low.includes(alias)&&!seen.has(canonical)){
+        seen.add(canonical);
+        const info=TERMS[canonical]||EXTRA_TERMS[canonical];
+        if(info)r.terms.push({term:canonical,...info});
+      }
+    }
+    // ── Partial/fuzzy matching for drug names ──
+    const drugPatterns=[
+      {rx:/rosuva/i,t:"rosuvastatin"},{rx:/ezeti/i,t:"ezetimibe"},{rx:/amlod/i,t:"amlodipine"},
+      {rx:/valsar/i,t:"valsartan"},{rx:/vonop/i,t:"vonoprazan"},{rx:/sacub/i,t:"sacubitril"},
+      {rx:/metfor/i,t:"metformin"},{rx:/warfa/i,t:"warfarin"},{rx:/omepra/i,t:"omeprazole"},
+      {rx:/lansop/i,t:"PPI"},{rx:/atorva/i,t:"statin"},{rx:/simvas/i,t:"statin"},
+      {rx:/losart/i,t:"ARB"},{rx:/cande?sar/i,t:"ARB"},{rx:/telmi/i,t:"ARB"},
+      {rx:/ramip/i,t:"ACEi"},{rx:/captop/i,t:"ACEi"},{rx:/lisino/i,t:"ACEi"},
+      {rx:/nifed/i,t:"CCB"},{rx:/dilti/i,t:"CCB"},
+      {rx:/clopid/i,t:"aspirin"},{rx:/ticag/i,t:"aspirin"},
+      {rx:/glimep/i,t:"diabetes"},{rx:/gliben/i,t:"diabetes"},{rx:/sitagl/i,t:"diabetes"},
+      {rx:/empag/i,t:"diabetes"},{rx:/dapag/i,t:"diabetes"},{rx:/canag/i,t:"diabetes"},
+    ];
+    for(const{rx,t}of drugPatterns){
+      if(rx.test(low)&&!seen.has(t)){seen.add(t);const info=TERMS[t];if(info)r.terms.push({term:t,...info})}
+    }
+
+    // ── Contextual insights ──
+    const allDrugs=["rosuvastatin","ezetimibe","amlodipine","valsartan","vonoprazan","sacubitril","metformin","warfarin","aspirin","omeprazole"];
+    const fd=allDrugs.filter(d=>low.includes(d));
+    if(fd.length>1)r.insights.push(`💊 Kombinasi terdeteksi: ${fd.join(" + ")}. Periksa profil interaksi obat & keamanan.`);
+    if(/dosis|dose|dosing|mg\/|miligram/i.test(low))r.insights.push("⚕️ Diskusi dosis — sesuaikan dengan GFR, fungsi hati, dan berat badan pasien.");
+    if(/efek samping|side effect|adverse|keluhan|reaksi/i.test(low))r.insights.push("⚠️ Efek samping terdeteksi — pastikan pelaporan ke BPOM jika ADR serius (MESO).");
+    if(/trial|studi|study|evidence|jurnal|penelitian|data klinis/i.test(low))r.questions.push("📋 Topik evidence-based terdeteksi. Perlu pencarian data clinical trial?");
+    if(/kompetitor|competitor|market share|pangsa pasar|brand lain/i.test(low))r.insights.push("📊 Analisis kompetitor — gunakan data IQVIA/SFR untuk validasi market share.");
+    if(/launch|peluncuran|launching|pre.?launch|post.?launch/i.test(low))r.questions.push("🚀 Strategi launch terdeteksi — Pre-launch, Launch, atau Post-launch?");
+    if(/pasien|patient|penderita/i.test(low))r.insights.push("👤 Konteks pasien — pastikan kepatuhan KEKI & etika medis dalam komunikasi.");
+    if(/bpjs|formularium|e.?catalog|ina.?cbg|kemenkes/i.test(low))r.insights.push("📋 Konteks regulasi/reimbursement terdeteksi.");
+    if(/guideline|panduan|pedoman|konsensus/i.test(low))r.questions.push("📖 Guideline terdeteksi — perlu referensi guideline terbaru?");
+    if(/first.?line|lini pertama|pilihan utama/i.test(low))r.insights.push("🎯 Diskusi terapi lini pertama terdeteksi.");
+    if(/generic|generik|branded|paten|me.?too/i.test(low))r.insights.push("💊 Diskusi generik vs branded terdeteksi.");
+
+    // Topics
+    const medTopics={"cardiology":/cardio|jantung|koroner|aritmia/i,"pharmacology":/farmako|obat|drug|terapi/i,"clinical":/klinis|clinical|pasien|patient/i,"regulatory":/regulasi|bpom|izin|registrasi/i,"marketing":/market|promo|campaign|brand/i,"sales":/sales|penjualan|revenue|target/i,"endocrinology":/endokrin|diabetes|tiroid|hormon/i,"oncology":/onkologi|kanker|tumor|kemoterapi/i,"neurology":/neuro|saraf|stroke|epilepsi/i};
+    for(const[topic,rx]of Object.entries(medTopics)){if(rx.test(low))r.topics.push(topic)}
+  }else{
+    if(/meeting|rapat|zoom|call|teams|conference/i.test(low))r.insights.push("📅 Konteks meeting — poin-poin penting dicatat.");
+    if(/deadline|tenggat|due date|harus selesai/i.test(low))r.insights.push("⏰ Deadline disebutkan — perlu reminder?");
+    if(/problem|masalah|issue|bug|error|kendala/i.test(low))r.questions.push("🔍 Masalah terdeteksi. Perlu brainstorming solusi?");
+    if(/idea|ide|suggest|saran|usul|proposal/i.test(low))r.insights.push("💡 Diskusi ide/saran sedang berlangsung.");
+    if(/budget|anggaran|cost|biaya|harga|investasi/i.test(low))r.insights.push("💰 Topik finansial terdeteksi.");
+    if(/schedule|jadwal|timeline|milestone|sprint/i.test(low))r.insights.push("📆 Pembahasan jadwal/timeline.");
+    if(/action item|tugas|task|to.?do|follow.?up/i.test(low))r.insights.push("✅ Action item terdeteksi — perlu dibuatkan checklist?");
+    if(/risk|risiko|concern|worried|khawatir/i.test(low))r.insights.push("⚠️ Diskusi risiko/concern.");
+    const genTopics={"project":/project|proyek/i,"business":/business|bisnis|revenue/i,"technology":/tech|teknologi|software|system/i,"marketing":/market|pemasaran|campaign/i,"finance":/finance|keuangan|budget/i,"team":/team|tim|kolaborasi/i,"strategy":/strateg|rencana|planning/i};
+    for(const[topic,rx]of Object.entries(genTopics)){if(rx.test(low))r.topics.push(topic)}
+  }
+
+  if(!r.questions.length&&all.split(/\s+/).length>20)r.questions.push(S.med?"❓ Perlu pencarian referensi jurnal?":"❓ Ada poin yang perlu di-follow up?");
+
+  S.insights=r;
+  updateInsights(r);
+
+  // ── Trigger Perplexity deep analysis (debounced) ──
+  if(S.pxKey){
+    const latestText=S.transcripts.length?S.transcripts[S.transcripts.length-1].text:'';
+    if(latestText.length>10&&latestText!==pxLastQuery){
+      schedulePXAnalysis(latestText);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PERPLEXITY SONAR API — DEEP CONTEXT ANALYSIS
+//  Debounced: waits 2s after last transcript, then calls API
+//  Results appended as AI insight cards
+// ═══════════════════════════════════════════════
+
+function schedulePXAnalysis(text){
+  if(pxDebounceTimer)clearTimeout(pxDebounceTimer);
+  pxDebounceTimer=setTimeout(()=>{
+    callPerplexity(text);
+  },2000); // Wait 2s of silence before calling
+}
+
+async function callPerplexity(latestText){
+  if(pxPending||!S.pxKey)return;
+  pxPending=true;
+  pxLastQuery=latestText;
+
+  // Show loading indicator
+  const loadingEl=document.createElement('div');
+  loadingEl.className='ai-loading';
+  loadingEl.id='px-loading';
+  loadingEl.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#818cf8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Perplexity analyzing...<div class="dot-pulse"><span></span><span></span><span></span></div>`;
+  $('insight-cards').appendChild(loadingEl);
+  $('insight-empty').style.display='none';
+  requestAnimationFrame(()=>{$('insight-area').scrollTop=$('insight-area').scrollHeight});
+
+  // Build context from recent transcripts (last 5)
+  const recentTexts=S.transcripts.slice(-5).map(t=>t.text).join('. ');
+  const detectedTerms=S.insights.terms.map(t=>t.term).join(', ');
+
+  const systemPrompt=S.med
+    ? `Kamu adalah AI asisten untuk Senior Product Manager di perusahaan farmasi Indonesia (Pakis Farma). Analisis percakapan berikut dan berikan insight yang actionable.
+
+ATURAN:
+- Jawab dalam Bahasa Indonesia, istilah medis tetap dalam bahasa Inggris/Latin
+- Fokus pada: farmakologi, efikasi klinis, profil keamanan, regulasi BPOM, strategi marketing farmasi
+- Jika ada nama obat, jelaskan: mekanisme kerja, dosis, indikasi, dan posisi di market Indonesia
+- Jika ada diskusi bisnis farmasi, berikan insight tentang market share, kompetitor, atau strategi
+- Setiap klaim harus evidence-based — sebutkan sumber jika ada (misal: nama studi atau guideline)
+- Format: 2-3 bullet points singkat dan actionable, TANPA header
+- Produk yang sedang dikembangkan: Rosuvastatin+Ezetimibe, Amlodipine+Valsartan, Vonoprazan, Sacubitril+Valsartan
+${detectedTerms?'Terms terdeteksi: '+detectedTerms:''}`
+    : `Kamu adalah AI asisten cerdas untuk percakapan sehari-hari. Analisis percakapan berikut dan berikan insight yang berguna.
+
+ATURAN:
+- Jawab dalam Bahasa Indonesia
+- Berikan 2-3 insight singkat dan actionable
+- Bisa berupa: ringkasan poin penting, saran tindak lanjut, informasi tambahan yang relevan, atau konteks yang membantu
+- Format: 2-3 bullet points singkat, TANPA header`;
+
+  try{
+    const res=await fetch('https://api.perplexity.ai/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${S.pxKey}`},
+      body:JSON.stringify({
+        model:S.pxModel||'sonar',
+        messages:[
+          {role:'system',content:systemPrompt},
+          {role:'user',content:`Analisis percakapan terbaru ini dan berikan insight:\n\n"${recentTexts}"`}
+        ],
+        max_tokens:400,
+        temperature:0.3
+      })
+    });
+
+    // Remove loading
+    const ld=$('px-loading');if(ld)ld.remove();
+
+    if(!res.ok){
+      console.error('Perplexity API error:',res.status);
+      pxPending=false;
+      return;
+    }
+
+    const data=await res.json();
+    const content=data.choices?.[0]?.message?.content;
+    if(!content){pxPending=false;return}
+
+    // Parse citations if available
+    const citations=data.citations||[];
+
+    // Add as AI insight
+    const aiInsight={
+      text:content.trim(),
+      citations:citations,
+      ts:Date.now(),
+      query:latestText.slice(0,50)
+    };
+
+    S.insights.ai.push(aiInsight);
+    appendAIInsight(aiInsight);
+
+  }catch(e){
+    console.error('Perplexity call failed:',e);
+    const ld=$('px-loading');if(ld)ld.remove();
+  }
+
+  pxPending=false;
+}
+
+function appendAIInsight(ai){
+  const cards=$('insight-cards');
+  const svAI=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+
+  // Format text: handle bullet points
+  let formatted=esc(ai.text)
+    .replace(/^[-•]\s*/gm,'')
+    .split('\n')
+    .filter(l=>l.trim())
+    .map(l=>`<div style="margin-bottom:4px">• ${l.trim()}</div>`)
+    .join('');
+
+  // Citations
+  let citHtml='';
+  if(ai.citations&&ai.citations.length>0){
+    const srcs=ai.citations.slice(0,3).map((c,i)=>{
+      try{const u=new URL(c);return`<a href="${c}" target="_blank" style="color:rgba(129,140,248,.7);text-decoration:none;font-size:9px">[${i+1}] ${u.hostname}</a>`}
+      catch(e){return''}
+    }).filter(Boolean).join(' ');
+    if(srcs)citHtml=`<div class="ai-src">📎 ${srcs}</div>`;
+  }
+
+  const div=document.createElement('div');
+  div.className='ic ai';
+  div.innerHTML=`<div class="ii ai">${svAI}</div><div class="ib2"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#818cf8;margin-bottom:3px">Perplexity Insight</div><div class="idf">${formatted}</div>${citHtml}</div>`;
+
+  cards.appendChild(div);
+  $('insight-empty').style.display='none';
+  requestAnimationFrame(()=>{$('insight-area').scrollTop=$('insight-area').scrollHeight});
+}
+
+// ═══ ACTIONS ═══
+function toggleMode(){S.med=!S.med;updateModeUI();S._aLen=0;analyze()}
+function setTab(t){S.tab=t;updateTabUI()}
+function toggleMic(){if(S.listening)stopAll();else startAll()}
+function submitManual(){const inp=$('manual-input');if(!inp.value.trim())return;S.transcripts.push({id:Date.now(),text:inp.value.trim(),ts:Date.now(),lang:"Manual"});appendBubble(S.transcripts[S.transcripts.length-1]);analyze();inp.value="";inp.focus()}
+function clearAll(){S.transcripts=[];S._aLen=0;S.insights={terms:[],insights:[],questions:[],topics:[],ai:[]};pxLastQuery="";$('bubbles').innerHTML='';$('interim-wrap').classList.remove('vis');$('interim-wrap').textContent='';$('empty-state').style.display='';$('insight-cards').innerHTML='';updateInsights(S.insights);$('insight-empty').style.display=''}
+function copyTranscript(){navigator.clipboard.writeText(S.transcripts.map(t=>t.text).join("\n"))}
+function exportSession(){
+  const sum=genSum();const lines=[`CONVERSATE AI — Export`,`Mode: ${S.med?"Medical":"General"} | Engine: ${S.engine}`,`Date: ${new Date().toLocaleString("id-ID")}`,`${"─".repeat(50)}`,``,`TRANSCRIPT:`,
+  ...S.transcripts.map(t=>`[${new Date(t.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})}] ${t.text}`),
+  ``,`SUMMARY:`,sum,``,`AI INSIGHTS:`,...S.insights.terms.map(t=>`• [${t.c}] ${t.term}: ${t.d}`),...S.insights.insights.map(i=>`• ${i}`),
+  ...((S.insights.ai&&S.insights.ai.length)?[``,`PERPLEXITY AI ANALYSIS:`,...S.insights.ai.map(a=>`• ${a}`)]:[])];
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"}));
+  a.download=`conversate-${new Date().toISOString().slice(0,10)}.txt`;a.click();
+}
+function genSum(){if(!S.transcripts.length)return"Belum ada.";const all=S.transcripts.map(t=>t.text).join(". ");const s=all.split(/[.!?]+/).filter(s=>s.trim().length>8);return s.length?s.slice(0,7).map((s,i)=>`${i+1}. ${s.trim()}`).join("\n"):"Terlalu singkat."}
+function showSummary(){const c=S.med?'m':'g';$('summary-text').textContent=genSum();$('summary-export-btn').className=`btn btn-pr ${c}`;if(S.insights.topics.length){$('summary-topics-section').style.display='';$('summary-topics').innerHTML=S.insights.topics.map(t=>`<span class="mstag">${t}</span>`).join('')}else{$('summary-topics-section').style.display='none'}if(S.insights.terms.length){$('summary-terms-section').style.display='';$('summary-terms').innerHTML=S.insights.terms.map(t=>`<div class="mst"><span class="mstn">${t.term}</span> <span class="mstd">— ${t.d}</span></div>`).join('')}else{$('summary-terms-section').style.display='none'}$('summary-modal').classList.add('vis')}
+function closeSummary(){$('summary-modal').classList.remove('vis')}
+function addQuickRefTerm(t){const info=TERMS[t];if(!info||S.insights.terms.find(x=>x.term===t))return;S.insights.terms.push({term:t,...info});updateInsights(S.insights)}
+function toggleTP(){S.tpPlaying=!S.tpPlaying;$('tp-play-svg').style.display=S.tpPlaying?'none':'';$('tp-pause-svg').style.display=S.tpPlaying?'':'none';restartTPScroll()}
+function restartTPScroll(){if(tpInterval)clearInterval(tpInterval);if(!S.tpPlaying)return;tpInterval=setInterval(()=>{const el=$('tp-scroll');if(el)el.scrollTop+=1},50/S.tpSpeed)}
+
+// ═══ SETTINGS ═══
+function openSettings(){
+  $('dg-key-input').value=S.dgKey;
+  const pxInput=$('px-key-input');if(pxInput)pxInput.value=S.pxKey;
+  updateSettingsUI();
+  $('settings-overlay').classList.add('vis');
+}
+function closeSettings(){$('settings-overlay').classList.remove('vis')}
+function selectEngine(eng){S.engine=eng;updateSettingsUI()}
+function selectDGModel(m){S.dgModel=m;updateSettingsUI()}
+function selectPXModel(m){S.pxModel=m;updateSettingsUI()}
+function updateSettingsUI(){
+  const isDG=S.engine==='deepgram';
+  $('card-dg').className=`s-card${isDG?' sel':''}`;
+  $('card-ws').className=`s-card${isDG?'':' sel'}`;
+  $('dg-settings').style.display=isDG?'':'none';
+  $('dg-model-section').style.display=isDG?'':'none';
+  $('card-nova2').className=`s-card${S.dgModel==='nova-2'?' sel':''}`;
+  $('card-nova2med').className=`s-card${S.dgModel==='nova-2-medical'?' sel':''}`;
+  // Perplexity model cards
+  const cs=$('card-sonar'),csp=$('card-sonar-pro');
+  if(cs)cs.className=`s-card${S.pxModel==='sonar'?' sel':''}`;
+  if(csp)csp.className=`s-card${S.pxModel==='sonar-pro'?' sel':''}`;
+}
+function saveSettings(){
+  S.dgKey=$('dg-key-input').value.trim();
+  const pxInput=$('px-key-input');if(pxInput)S.pxKey=pxInput.value.trim();
+  try{localStorage.setItem('conversate_settings',JSON.stringify({engine:S.engine,dgKey:S.dgKey,dgModel:S.dgModel,pxKey:S.pxKey,pxModel:S.pxModel}))}catch(e){}
+  $('s-status').className='s-status ok';$('s-status').textContent='✓ Settings saved!';
+  setTimeout(()=>{$('s-status').textContent=''},2000);
+  if(S.listening){stopAll();setTimeout(()=>startAll(),200)}
+}
+
+// ═══ INIT ═══
+updateModeUI();updateTabUI();
+</script>
+</body>
+</html>
