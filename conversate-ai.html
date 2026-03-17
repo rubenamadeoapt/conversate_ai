@@ -533,7 +533,8 @@ async function startDeepgram(){
     punctuate:'true',interim_results:'true',
     utterance_end_ms:'1000',vad_events:'true',
     smart_format:'true',encoding:'linear16',
-    sample_rate:'16000',channels:'1'
+    sample_rate:'16000',channels:'1',
+    no_delay:'true'
   });
   const url=`wss://api.deepgram.com/v1/listen?${params}`;
   return new Promise((resolve)=>{
@@ -588,31 +589,43 @@ async function startDeepgram(){
 function startMediaRecorder(){
   if(!micStream)return;
   try{
-    // Use AudioWorklet for low-latency PCM streaming
-    const actx=audioCtx||new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    const source=actx.createMediaStreamSource(micStream);
-    const processor=actx.createScriptProcessor(2048,1,1);
+    // iOS Safari: jangan paksa sampleRate:16000 — gunakan native rate lalu resample
+    const nativeCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+    const nativeRate=nativeCtx.sampleRate;
+    const source=nativeCtx.createMediaStreamSource(micStream);
+    const bufSize=nativeRate===16000?2048:4096;
+    const processor=nativeCtx.createScriptProcessor(bufSize,1,1);
     processor.onaudioprocess=(e)=>{
       if(!dgSocket||dgSocket.readyState!==WebSocket.OPEN)return;
       const input=e.inputBuffer.getChannelData(0);
-      // Convert float32 to int16
-      const buf=new ArrayBuffer(input.length*2);
+      // Resample to 16kHz jika native rate berbeda
+      let samples=input;
+      if(nativeRate!==16000){
+        const ratio=nativeRate/16000;
+        const outLen=Math.floor(input.length/ratio);
+        samples=new Float32Array(outLen);
+        for(let i=0;i<outLen;i++)samples[i]=input[Math.floor(i*ratio)];
+      }
+      // Convert float32 to int16 PCM
+      const buf=new ArrayBuffer(samples.length*2);
       const view=new DataView(buf);
-      for(let i=0;i<input.length;i++){
-        const s=Math.max(-1,Math.min(1,input[i]));
+      for(let i=0;i<samples.length;i++){
+        const s=Math.max(-1,Math.min(1,samples[i]));
         view.setInt16(i*2,s<0?s*0x8000:s*0x7FFF,true);
       }
       dgSocket.send(buf);
     };
     source.connect(processor);
-    processor.connect(actx.destination);
+    processor.connect(nativeCtx.destination);
     // Store for cleanup
     S._dgProcessor=processor;S._dgSource=source;
   }catch(e){
     // Fallback: MediaRecorder with small timeslice
     console.log("ScriptProcessor failed, using MediaRecorder");
     try{
-      mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm;codecs=opus'});
+      // Deteksi format yang didukung (iOS Safari tidak support webm)
+      const mimeType=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4',''].find(m=>!m||MediaRecorder.isTypeSupported(m))||'';
+      mediaRecorder=new MediaRecorder(micStream,mimeType?{mimeType}:{});
       mediaRecorder.ondataavailable=(e)=>{
         if(dgSocket&&dgSocket.readyState===WebSocket.OPEN&&e.data.size>0){
           dgSocket.send(e.data);
@@ -658,12 +671,18 @@ async function startAll(){
   if(S.engine==='deepgram'&&S.dgKey){
     const ok=await startDeepgram();
     if(!ok){
-      console.warn("Deepgram failed, falling back to Web Speech");
-      S.engine='webspeech';
+      // Fallback: gunakan Web Speech TANPA mengubah S.engine
+      // supaya preferensi user tetap tersimpan sebagai Deepgram
+      console.warn("Deepgram failed, using Web Speech as temporary fallback");
       recog=createWSRecog();
       if(recog)try{recog.start()}catch(e){}
+      // Tandai active engine sebagai fallback (hanya untuk badge)
+      S._engineFallback=true;
+    }else{
+      S._engineFallback=false;
     }
   }else{
+    S._engineFallback=false;
     recog=createWSRecog();
     if(!recog){alert("Browser tidak support Speech Recognition. Gunakan Chrome/Safari.");stopAll();return}
     try{recog.start()}catch(e){stopAll()}
@@ -686,9 +705,9 @@ function stopAll(){
 function updateEngineBadge(){
   const eb=$('eng-badge');
   if(S.listening){
-    const isDG=S.engine==='deepgram'&&S.dgKey&&dgSocket;
+    const isDG=S.engine==='deepgram'&&S.dgKey&&dgSocket&&!S._engineFallback;
     eb.className=`eng-badge on ${isDG?'dg':'ws'}`;
-    eb.textContent=isDG?'⚡ Deepgram':'🌐 Web Speech';
+    eb.textContent=isDG?'⚡ Deepgram':S._engineFallback?'⚠️ Fallback WS':'🌐 Web Speech';
   }else{eb.classList.remove('on')}
 }
 
