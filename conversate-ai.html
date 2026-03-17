@@ -538,14 +538,20 @@ async function startDeepgram(){
     sample_rate:'16000',channels:'1',
     no_delay:'true'
   });
-  const url=`wss://api.deepgram.com/v1/listen?${params}`;
+  // Gunakan URL token auth — lebih compatible dengan iOS Safari vs subprotocol auth
+  const url=`wss://api.deepgram.com/v1/listen?token=${encodeURIComponent(S.dgKey)}&${params}`;
   return new Promise((resolve)=>{
+    let resolved=false;
+    const safeResolve=(v)=>{if(!resolved){resolved=true;resolve(v)}};
+    // Timeout 5 detik — jika onopen tidak fire, anggap gagal
+    const timeout=setTimeout(()=>{safeResolve(false)},5000);
     try{
-      dgSocket=new WebSocket(url,['token',S.dgKey]);
+      dgSocket=new WebSocket(url);  // Tanpa subprotocol — iOS Safari compatible
       dgSocket.onopen=()=>{
+        clearTimeout(timeout);
         console.log("Deepgram connected");
         startMediaRecorder();
-        resolve(true);
+        safeResolve(true);
       };
       dgSocket.onmessage=(e)=>{
         try{
@@ -576,15 +582,16 @@ async function startDeepgram(){
           }
         }catch(err){}
       };
-      dgSocket.onerror=(e)=>{console.error("DG error:",e);resolve(false)};
+      dgSocket.onerror=(e)=>{clearTimeout(timeout);console.error("DG error:",e);safeResolve(false)};
       dgSocket.onclose=(e)=>{
         console.log("DG closed:",e.code);
-        if(S.listening&&e.code!==1000){
-          // Reconnect
-          setTimeout(()=>{if(S.listening)startDeepgram()},500);
+        safeResolve(false);  // jika close sebelum open, anggap gagal
+        if(S.listening&&e.code!==1000&&e.code!==1008&&e.code!==1011){
+          // Reconnect hanya untuk disconnect tak terduga (bukan auth error)
+          setTimeout(()=>{if(S.listening)startDeepgram()},1000);
         }
       };
-    }catch(e){console.error("DG connect err:",e);resolve(false)}
+    }catch(e){clearTimeout(timeout);console.error("DG connect err:",e);safeResolve(false)}
   });
 }
 
