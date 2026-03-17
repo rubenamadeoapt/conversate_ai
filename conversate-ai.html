@@ -478,8 +478,10 @@ try{const saved=JSON.parse(localStorage.getItem('conversate_settings')||'{}');if
 // ═══ AUDIO VISUALIZER ═══
 async function startAudioVis(){
   try{
-    audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:16000}});
+    // Jangan paksa sampleRate — iOS Safari throw OverconstrainedError & micStream jadi null
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended')await audioCtx.resume();
+    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
     const src=audioCtx.createMediaStreamSource(micStream);
     analyser=audioCtx.createAnalyser();
     analyser.fftSize=256;analyser.smoothingTimeConstant=0.5;
@@ -591,6 +593,8 @@ function startMediaRecorder(){
   try{
     // iOS Safari: jangan paksa sampleRate:16000 — gunakan native rate lalu resample
     const nativeCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+    // iOS butuh resume() setelah user gesture — tanpa ini onaudioprocess tidak pernah fire
+    if(nativeCtx.state==='suspended')nativeCtx.resume();
     const nativeRate=nativeCtx.sampleRate;
     const source=nativeCtx.createMediaStreamSource(micStream);
     const bufSize=nativeRate===16000?2048:4096;
